@@ -1,21 +1,4 @@
 #!/usr/bin/env ruby
-
-require 'tmpdir'
-require 'open3'
-
-repo = ARGV.first
-
-Dir.mktmpdir { |dir|
-  Dir.chdir dir
-  out, err, status = Open3.capture3 'git', 'clone', repo, 'cloned'
-  unless status.success?
-    $stderr.puts out, err
-    exit "Failed somehow >.<"
-  end
-  Dir.chdir 'cloned'
-  files = Dir['**/*'].reject { |name| File.directory? name }
-  files.each do |filename|
-    loc = File.readlines(filename).count { |line| line !~ /^\s*$/ }
-    puts "#{loc}\t#{filename}"
-  end
-}
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+require 'gitloc'
+Gitloc.call(ARGV, $stdout, $stderr)
