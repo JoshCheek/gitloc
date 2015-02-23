@@ -4,8 +4,7 @@ require 'open3'
 require 'gitloc/version'
 
 class Gitloc
-  def self.call(argv, outstream, errstream)
-    repo = argv.first
+  def self.call(repo)
     Dir.mktmpdir { |dir|
       Dir.chdir dir
       out, err, status = Open3.capture3 'git', 'clone', repo, 'cloned'
@@ -15,9 +14,9 @@ class Gitloc
       end
       Dir.chdir 'cloned'
       files = Dir['**/*'].reject { |name| File.directory? name }
-      files.each do |filename|
+      files.map do |filename|
         loc = File.readlines(filename).count { |line| line !~ /^\s*$/ }
-        outstream.puts "#{loc}\t#{filename}"
+        [filename, loc]
       end
     }
   end
